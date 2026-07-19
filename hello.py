@@ -89,7 +89,7 @@ API_KEY = "Gsk_hf2..."
 # ۵. راه‌اندازی کلاینت هوش مصنوعی با سرور ضد تحریمِ همیشه پایدار
 client = Groq(
     api_key=API_KEY,
-    base_url="https://api.v1.groq.ir/v1"
+    base_url="https://api.groq.com/openapi/v1"
 )
 
 # ۶. مدیریت تاریخچه چت در سشن استریم‌لیت
