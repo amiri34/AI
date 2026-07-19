@@ -1,75 +1,131 @@
 import streamlit as st
 from groq import Groq
 from datetime import datetime
+import pytz
+import httpx
 
-# تنظیمات هدر صفحه مرورگر
-st.set_page_config(page_title="AMIR AI", page_icon="⚡", layout="centered")
+# ۱. تنظیمات هدر صفحه مرورگر
+st.set_page_config(page_title="Amir AI", page_icon="⚡", layout="centered")
 
-# استایل‌دهی هوشمند برای پشتیبانی هم‌زمان از فارسی و انگلیسی (تراز خودکار متن)
+# ۲. استایل پیشرفته و فوق‌العاده جذاب برای رابط کاربری (تم دارک مدرن)
 st.markdown("""
     <style>
-    body, div, p, span, input { 
-        text-align: justify;
+    /* تغییر رنگ پس‌زمینه کل صفحه به دارک ملایم */
+    .stApp {
+        background-color: #121214;
+        color: #E2E8F0;
     }
-    .time-container { font-family: 'monospace'; font-size: 1.1rem; color: #888888; padding-top: 15px; }
-    .brand-title { font-size: 2.5rem; font-weight: bold; color: #FF4B4B; }
+    
+    /* تنظیمات فونت و راست‌چین کردن متون فارسی */
+    body, div, p, span, input, textarea {
+        text-align: justify;
+        direction: rtl;
+    }
+    
+    /* هدر اصلی برنامه */
+    .brand-title { 
+        font-size: 2.8rem; 
+        font-weight: 900; 
+        background: linear-gradient(45deg, #FF4B4B, #FF8F00);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 1px;
+    }
+    
+    /* کادر نمایش ساعت */
+    .time-container { 
+        font-family: 'monospace'; 
+        font-size: 1.1rem; 
+        color: #8A99AD; 
+        text-align: left; 
+        direction: ltr;
+        margin-top: 15px;
+    }
+    
+    /* شخصی‌سازی باکس پیام کاربر */
+    .user-bubble {
+        background-color: #2D3748;
+        padding: 14px 18px;
+        border-radius: 18px 18px 4px 18px;
+        margin: 10px 0;
+        border: 1px solid #4A5568;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        color: #F7FAFC;
+    }
+    
+    /* شخصی‌سازی باکس پیام هوش مصنوعی */
+    .bot-bubble {
+        background-color: #1A202C;
+        padding: 14px 18px;
+        border-radius: 18px 18px 18px 4px;
+        margin: 10px 0;
+        border: 1px solid #2B6CB0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        color: #E2E8F0;
+    }
+    
+    /* استایل دادن به بخش خوش‌آمدگویی */
+    .welcome-text {
+        color: #718096;
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+    }
     </style>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-# ساخت هدر و ساعت بالای صفحه
+# ۳. ساخت هدر و ساعت هماهنگ با زمان ایران
 col1, col2 = st.columns([2, 1])
 with col1:
     st.markdown('<div class="brand-title">⚡ AMIR AI</div>', unsafe_allow_html=True)
 with col2:
-    import pytz
     tehran_timezone = pytz.timezone('Asia/Tehran')
-    current_time = datetime.now(tehran_timezone).strftime('%H:%M')
+    current_time = datetime.now(tehran_timezone).strftime("%H:%M")
     st.markdown(f'<div class="time-container">🕒 {current_time}</div>', unsafe_allow_html=True)
 
-st.write("Welcome to Zigma AI. Talk to me in English or Persian (Farsi)!")
+st.markdown('<div class="welcome-text">به چت‌بات اختصاصی امیر خوش آمدید. Talk to me in English or Persian!</div>', unsafe_allow_html=True)
 
-# تنظیم کردن کلید API اختصاصی شما
-API_KEY = "Gsk_hf2ePA1vR7uy9eBu2SSSWGdyb3FYLKxU6b2Fzp8RQNXCijLtL2mp"
+# ۴. تنظیم کردن کلید API
+API_KEY = "Gsk_hf2..." 
 
-# راه‌اندازی کلاینت Groq
-import httpx 
-http_client = httpx.Client(proxy='http://p.techtunnels.com:8081')
-client = Groq(api_key=API_KEY , http_client=http_client)
+# ۵. راه‌اندازی کلاینت هوش مصنوعی به همراه پروکسی ضد تحریم برای سرور ابری
+try:
+    http_client = httpx.Client(proxy="http://45.15.25.26:8080") 
+    client = Groq(api_key=API_KEY, http_client=http_client)
+except Exception:
+    client = Groq(api_key=API_KEY)
 
-# تعریف شخصیت هوشمند (دقیقاً مثل ChatGPT)
-system_instruction = (
-    "You are Zigma AI, a smart, fast, and multilingual AI assistant like ChatGPT, developed by a professional developer. "
-    "Always detect the user's language automatically. If the user speaks Persian (Farsi), reply in fluent and natural Persian. "
-    "If the user speaks English, reply in fluent English. Never mix languages in a weird way."
-)
-
+# ۶. مدیریت تاریخچه چت در سشن استریم‌لیت
 if "messages" not in st.session_state:
-    st.session_state.messages = [{'role': 'system', 'content': system_instruction}]
+    st.session_state.messages = []
 
-# نمایش تاریخچه چت‌های قبلی
+# نمایش پیام‌های قبلی با استایل جدید و شیک
 for msg in st.session_state.messages:
-    if msg["role"] != "system":
-        avatar = "👤" if msg["role"] == "user" else "⚡"
-        with st.chat_message(msg["role"], avatar=avatar):
-            st.write(msg["content"])
+    if msg["role"] == "user":
+        st.markdown(f'<div class="user-bubble"><b>👤 شما:</b><br>{msg["content"]}</div>', unsafe_allow_html=True)
+    else:
+        st.markdown(f'<div class="bot-bubble"><b>⚡ هوش مصنوعی:</b><br>{msg["content"]}</div>', unsafe_allow_html=True)
 
-# دریافت پیام جدید از کاربر
-if user_input := st.chat_input("Message Zigma AI..."):
-    with st.chat_message("user", avatar="👤"):
-        st.write(user_input)
-    
+# ۷. دریافت پیام جدید از کاربر
+if user_input := st.chat_input("Message Amir AI..."):
+    # نمایش پیام جدید کاربر
     st.session_state.messages.append({"role": "user", "content": user_input})
+    st.markdown(f'<div class="user-bubble"><b>👤 شما:</b><br>{user_input}</div>', unsafe_allow_html=True)
     
-    with st.chat_message("assistant", avatar="⚡"):
-        with st.spinner("Zigma is thinking..."):
-            try:
-                # ارسال درخواست به سرورهای Groq
-                chat_completion = client.chat.completions.create(
-                    messages=st.session_state.messages,
-                    model="llama3-8b-8192",
-                )
-                bot_response = chat_completion.choices[0].message.content
-                st.write(bot_response)
-                st.session_state.messages.append({"role": "assistant", "content": bot_response})
-            except Exception as e:
-                st.error("Connection error! Please check your VPN and try again.")
+    # گرفتن پاسخ از هوش مصنوعی
+    with st.container():
+        # ساخت یک باکس خالی با استایل ربات برای افکت تایپ یا لودینگ
+        bot_placeholder = st.empty()
+        
+        try:
+            response = client.chat.completions.create(
+                model="llama3-8b-8192",
+                messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages]
+            )
+            output_text = response.choices[0].message.content
+            
+            # قرار دادن متن داخل باکس شیک ربات
+            bot_placeholder.markdown(f'<div class="bot-bubble"><b>⚡ هوش مصنوعی:</b><br>{output_text}</div>', unsafe_allow_html=True)
+            st.session_state.messages.append({"role": "assistant", "content": output_text})
+            
+        except Exception as e:
+            bot_placeholder.error("خطا در اتصال! لطفاً وضعیت فیلترشکن سرور یا اینترنت را بررسی کنید.")
