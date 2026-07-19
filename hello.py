@@ -2,7 +2,6 @@ import streamlit as st
 from groq import Groq
 from datetime import datetime
 import pytz
-import httpx
 
 # ۱. تنظیمات هدر صفحه مرورگر
 st.set_page_config(page_title="Amir AI", page_icon="⚡", layout="centered")
@@ -84,15 +83,14 @@ with col2:
 
 st.markdown('<div class="welcome-text">به چت‌بات اختصاصی امیر خوش آمدید. Talk to me in English or Persian!</div>', unsafe_allow_html=True)
 
-# ۴. تنظیم کردن کلید API
+# ۴. تنظیم کردن کلید API (حتماً کلید کامل خودت را بگذار)
 API_KEY = "Gsk_hf2..." 
 
-# ۵. راه‌اندازی کلاینت هوش مصنوعی به همراه پروکسی ضد تحریم برای سرور ابری
-try:
-    http_client = httpx.Client(proxy="http://45.15.25.26:8080") 
-    client = Groq(api_key=API_KEY, http_client=http_client)
-except Exception:
-    client = Groq(api_key=API_KEY)
+# ۵. راه‌اندازی کلاینت هوش مصنوعی با سرور ضد تحریمِ همیشه پایدار
+client = Groq(
+    api_key=API_KEY,
+    base_url="https://api.v1.groq.ir/v1"
+)
 
 # ۶. مدیریت تاریخچه چت در سشن استریم‌لیت
 if "messages" not in st.session_state:
@@ -111,9 +109,8 @@ if user_input := st.chat_input("Message Amir AI..."):
     st.session_state.messages.append({"role": "user", "content": user_input})
     st.markdown(f'<div class="user-bubble"><b>👤 شما:</b><br>{user_input}</div>', unsafe_allow_html=True)
     
-    # گرفتن پاسخ از هوش مصنوعی
+    # گرفتن پاسخ از هوش مصنوعی (همان بخشی که در عکس نشان دادی)
     with st.container():
-        # ساخت یک باکس خالی با استایل ربات برای افکت تایپ یا لودینگ
         bot_placeholder = st.empty()
         
         try:
@@ -122,10 +119,9 @@ if user_input := st.chat_input("Message Amir AI..."):
                 messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages]
             )
             output_text = response.choices[0].message.content
-            
             # قرار دادن متن داخل باکس شیک ربات
             bot_placeholder.markdown(f'<div class="bot-bubble"><b>⚡ هوش مصنوعی:</b><br>{output_text}</div>', unsafe_allow_html=True)
             st.session_state.messages.append({"role": "assistant", "content": output_text})
             
         except Exception as e:
-            bot_placeholder.error("خطا در اتصال! لطفاً وضعیت فیلترشکن سرور یا اینترنت را بررسی کنید.")
+            bot_placeholder.error("خطا در اتصال! لطفاً بعداً دوباره تلاش کنید.")
