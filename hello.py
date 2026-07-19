@@ -21,7 +21,9 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.markdown('<div class="brand-title">⚡ AMIR AI</div>', unsafe_allow_html=True)
 with col2:
-    current_time = datetime.now().strftime("%H:%M")
+    import pytz
+    tehran_timezone = pytz.timezone('Asia/Tehran')
+    current_time = datetime.now(tehran_timezone).strftime('%H:%M')
     st.markdown(f'<div class="time-container">🕒 {current_time}</div>', unsafe_allow_html=True)
 
 st.write("Welcome to Zigma AI. Talk to me in English or Persian (Farsi)!")
